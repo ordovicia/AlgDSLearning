@@ -47,4 +47,5 @@ Cargo.lock
 *.out
 *.app
 
-
+testcase/
+testcase.*
