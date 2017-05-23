@@ -1,5 +1,5 @@
 #[allow(unused_imports)]
-use std::{cmp, collections, fmt, io, str};
+use std::{cmp, collections, fmt, io, iter, str};
 use std::io::Read;
 
 #[allow(dead_code)]
@@ -34,6 +34,16 @@ fn get<T>() -> T
     where T: str::FromStr
 {
     get_word().parse().ok().unwrap()
+}
+
+#[allow(dead_code)]
+fn gets<T>() -> Vec<T>
+    where T: str::FromStr
+{
+    get_line()
+        .split_whitespace()
+        .map(|e| e.parse().ok().unwrap())
+        .collect()
 }
 
 fn main() {
