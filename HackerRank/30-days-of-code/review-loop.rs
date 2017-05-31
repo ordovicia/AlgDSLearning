@@ -4,7 +4,7 @@ fn main() {
     let mut buf = String::new();
     io::stdin().read_line(&mut buf).unwrap();
     let n = buf.trim().parse::<i32>().unwrap();
-    
+
     for _ in 0..n {
         buf.clear();
         io::stdin().read_line(&mut buf).unwrap();

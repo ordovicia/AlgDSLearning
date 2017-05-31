@@ -1,97 +1,77 @@
-// use std::{io, fmt, iter};
-use std::io;
-use std::collections::HashMap;
+#[allow(unused_imports)]
+use std::{cmp, collections, fmt, io, iter, str};
+use std::io::Read;
 
-fn split_first_char(s: &str) -> (char, &str) {
-    let mut chars = s.chars();
-    let first_char = chars.next().unwrap();
-    let remain_str = chars.as_str();
-    (first_char, remain_str)
-}
-
-struct Trie {
-    children: HashMap<char, Box<Trie>>,
-    prefix_cnt: usize,
-}
-
-/*
-impl fmt::Display for Trie {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        fn fmt_r(trie: &Trie, indent: usize, f: &mut fmt::Formatter) {
-            let padding = iter::repeat(' ').take(indent).collect::<String>();
-            for (ch, child) in &trie.children {
-                writeln!(f, "{}- {} ({})", padding, ch, child.prefix_cnt).unwrap();
-                fmt_r(&*child, indent + 2, f);
-            }
-        };
-
-        fmt_r(self, 0, f);
-        Ok(())
-    }
-}
-*/
-
-impl Trie {
-    fn new() -> Trie {
-        Trie {
-            children: HashMap::new(),
-            prefix_cnt: 0usize,
-        }
-    }
-
-    fn insert(&mut self, s: &str) {
-        if s.is_empty() {
-            return;
-        }
-
-        let (ch, rem_str) = split_first_char(s);
-        let entry = self.children.entry(ch).or_insert(Box::new(Trie::new()));
-        entry.prefix_cnt += 1;
-        entry.insert(rem_str);
-    }
-
-    fn find(&self, s: &str) -> usize {
-        let mut node = self;
-        for ch in s.chars() {
-            match node.children.get(&ch) {
-                Some(child) => {
-                    node = &*child;
-                }
-                None => {
-                    return 0usize;
-                }
-            }
-        }
-        node.prefix_cnt
-    }
-}
-
-fn line() -> String {
+#[allow(dead_code)]
+fn get_line() -> String {
     let mut buf = String::new();
     io::stdin().read_line(&mut buf).unwrap();
     buf.trim().to_owned()
 }
 
+fn get_word() -> String {
+    let mut stdin = io::stdin();
+    let mut u8b: [u8; 1] = [0];
+    loop {
+        let mut buf = Vec::with_capacity(16);
+        loop {
+            let res = stdin.read(&mut u8b);
+            if res.unwrap_or(0) == 0 || u8b[0] <= b' ' {
+                break;
+            } else {
+                buf.push(u8b[0]);
+            }
+        }
+        if buf.len() >= 1 {
+            let ret = String::from_utf8(buf).unwrap();
+            return ret;
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn get<T>() -> T
+    where T: str::FromStr
+{
+    get_word().parse().ok().unwrap()
+}
+
+#[allow(dead_code)]
+fn gets<T>() -> Vec<T>
+    where T: str::FromStr
+{
+    get_line()
+        .split_whitespace()
+        .map(|e| e.parse().ok().unwrap())
+        .collect()
+}
+
+struct Trie {
+    prefix: Vec<u8>,
+    children: HashMap<char, Box<Trie>>,
+}
+
 fn main() {
-    let n = line().parse::<i32>().unwrap();
-    let mut trie = Trie::new();
+    let n = get::<i32>();
+    let mut Trie = Trie::default();
     for _ in 0..n {
         let (query, oprand) = {
-            let l = line();
-            let mut iter = l.split_whitespace();
-            let q = iter.next().unwrap().to_owned();
-            let o = iter.next().unwrap().to_owned();
-            (q, o)
+            let v = get_line()
+                .as_str()
+                .split(' ')
+                .map(|s| s.to_owned())
+                .collect::<Vec<_>>();
+            (v[0].clone(), v[1].clone())
         };
+
         match query.as_ref() {
             "add" => {
-                trie.insert(&oprand);
-                // println!("{}", trie);
+                Trie.add(oprand.as_bytes());
             }
             "find" => {
-                println!("{}", trie.find(&oprand));
+                println!("{}", Trie.find(oprand.as_bytes()));
             }
-            _ => unreachable!(),
+            _ => {}
         }
     }
 }
